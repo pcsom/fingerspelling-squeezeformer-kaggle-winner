@@ -145,8 +145,6 @@ total_grad_norm = None
 total_grad_norm_after_clip = None
 i = 0 
 
-if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"): 
-    os.makedirs(f"{cfg.output_dir}/fold{cfg.fold}/")
 
 loss_history = []
 best_val_metric = float('-inf')
@@ -166,6 +164,9 @@ if os.path.exists(checkpoint_path):
     loss_history = checkpoint.get("loss_history", loss_history)
     best_val_metric = checkpoint.get("best_val_metric", best_val_metric)
     val_scores = checkpoint.get("val_scores", val_scores)
+
+if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"): 
+    os.makedirs(f"{cfg.output_dir}/fold{cfg.fold}/")
 
 optimizer.zero_grad()
 
