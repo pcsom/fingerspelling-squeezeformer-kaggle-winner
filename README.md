@@ -23,8 +23,8 @@ We used the `nvcr.io/nvidia/pytorch:23.07-py3` container from the [ngc catalog](
 
 Within the container clone this repository and install necessary packages with 
 ```
-git clone https://github.com/pcsom/kaggle-asl-fingerspelling-1st-place-solution
-cd kaggle-asl-fingerspelling-1st-place-solution
+git clone https://github.com/pcsom/fingerspelling-squeezeformer-kaggle-winner
+cd fingerspelling-squeezeformer-kaggle-winner
 pip install -r requirements.txt
 ```
 
