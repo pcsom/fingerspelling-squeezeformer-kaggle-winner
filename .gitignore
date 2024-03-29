@@ -97,7 +97,6 @@ venv.bak/
 # Package paths
 .DS_Store
 !*/supplemental_metadata_folded.csv
-datamount
 *.pth
 .neptune/
 .env
