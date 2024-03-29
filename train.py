@@ -141,7 +141,6 @@ scaler = GradScaler()
 
 # Start the training and validation loop
 cfg.curr_step = 0
-optimizer.zero_grad()
 total_grad_norm = None    
 total_grad_norm_after_clip = None
 i = 0 
@@ -168,6 +167,7 @@ if os.path.exists(checkpoint_path):
     best_val_metric = checkpoint.get("best_val_metric", best_val_metric)
     val_scores = checkpoint.get("val_scores", val_scores)
 
+optimizer.zero_grad()
 
 save_path = f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth"
 for epoch in range(epochStart, cfg.epochs):
