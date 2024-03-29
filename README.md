@@ -1,6 +1,4 @@
-## Google - ASL Fingerspelling Recognition 1st place solution (modification)
-
-Note - I am not the author or affiliated with the 1st place solution. Their original work and github can be found here:
+## Note - I am not the author of or affiliated with the authors of the 1st place solution. Their original work and github can be found here:
 https://github.com/ChristofHenkel/kaggle-asl-fingerspelling-1st-place-solution
 
 This repository contains the codebase to reproduce the winning solution to the Google - ASL Fingerspelling Recognition competition on kaggle. 
