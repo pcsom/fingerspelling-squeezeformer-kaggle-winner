@@ -28,7 +28,7 @@ cfg.symmetry_fp = 'datamount/symmetry.csv'
 cfg.test = False
 cfg.test_data_folder = cfg.data_folder
 cfg.train = True
-cfg.train_val =  False
+cfg.train_val =  False  #Might need this to be True???
 cfg.eval_epochs = 1
 
 #logging
@@ -148,7 +148,7 @@ cfg.metric = "metric_1"
 
 #Saving
 cfg.save_weights_only = True
-cfg.save_only_last_ckpt = True
+cfg.save_only_last_ckpt = False
 cfg.save_val_data = True
 
 with open(cfg.data_folder + 'inference_args.json', "r") as f:

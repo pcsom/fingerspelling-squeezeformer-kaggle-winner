@@ -19,6 +19,9 @@ import random
 from neptune.utils import stringify_unsupported
 from utils import calc_grad_norm, set_seed
 
+#ALERT - SET THIS!!!
+CHECKPOINT_FILE = ""
+
 
 BASEDIR= './'#'../input/asl-fingerspelling-config'
 for DIRNAME in 'configs data models postprocess metrics'.split():
@@ -146,7 +149,28 @@ i = 0
 if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"): 
     os.makedirs(f"{cfg.output_dir}/fold{cfg.fold}/")
 
-for epoch in range(cfg.epochs):
+loss_history = []
+best_val_metric = float('-inf')
+val_scores = []
+
+epochStart = 0
+checkpoint_path = f"{cfg.output_dir}/fold{cfg.fold}/{CHECKPOINT_FILE}.pth"
+if os.path.exists(checkpoint_path):
+    checkpoint = torch.load(checkpoint_path)
+    model.load_state_dict(checkpoint["model"])
+    optimizer.load_state_dict(checkpoint["optimizer"])
+    scheduler.load_state_dict(checkpoint["scheduler"])
+    epochStart = checkpoint["epoch"] + 1  # Continue from next epoch
+    i = checkpoint.get("i", 0)  # Set i to saved value, default to 0 if not found
+    cfg = checkpoint.get("cfg", cfg)  # Optionally load cfg if it was saved and needs to be updated
+    scaler.load_state_dict(checkpoint["scaler"])
+    loss_history = checkpoint.get("loss_history", loss_history)
+    best_val_metric = checkpoint.get("best_val_metric", best_val_metric)
+    val_scores = checkpoint.get("val_scores", val_scores)
+
+
+save_path = f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth"
+for epoch in range(epochStart, cfg.epochs):
     
     cfg.curr_epoch = epoch
     progress_bar = tqdm(range(len(train_dataloader))[:], desc=f'Train epoch {epoch}')
@@ -246,15 +270,43 @@ for epoch in range(cfg.epochs):
         if type(val_score)!=dict:
             val_score = {f'score':val_score}
 
+        val_scores.append(val_score)
         for k, v in val_score.items():
             print(f"val_{k}: {v:.3f}")
             if neptune_run:
                 neptune_run[f"val/{k}"].log(v, step=cfg.curr_step)
+            if v > best_val_metric:
+                best_val_metric = v
+                torch.save(model.state_dict(), f"{cfg.output_dir}/fold{cfg.fold}/best_model_seed{cfg.seed}.pth")
     
 
-        
+    epoch_loss_avg = sum(losses) / len(losses)
+    loss_history.append(epoch_loss_avg)
     if not cfg.save_only_last_ckpt:
-        torch.save({"model": model.state_dict()}, f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth")
+        torch.save({
+            "model": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            "scheduler": scheduler.state_dict(),
+            "epoch": epoch,
+            "i": i,
+            "cfg": cfg,
+            "scaler": scaler.state_dict(),
+            "loss_history": loss_history,
+            "best_val_metric": best_val_metric,
+            "val_scores": val_scores,
+        }, save_path)
         
-torch.save({"model": model.state_dict()}, f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth")
-print(f"Checkpoint save : " +  f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth")
+
+torch.save({
+    "model": model.state_dict(),
+    "optimizer": optimizer.state_dict(),
+    "scheduler": scheduler.state_dict(),
+    "epoch": epoch,
+    "i": i,
+    "cfg": cfg,
+    "scaler": scaler.state_dict(),
+    "loss_history": loss_history,
+    "best_val_metric": best_val_metric,
+    "val_scores": val_scores,
+}, save_path)
+print(f"Checkpoint save : " +  save_path)
