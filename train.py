@@ -170,7 +170,8 @@ if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"):
 
 optimizer.zero_grad()
 
-save_path = f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth"
+# save_path = f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth"
+save_path = f"content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed{cfg.seed}.pth"
 for epoch in range(epochStart, cfg.epochs):
     
     cfg.curr_epoch = epoch
