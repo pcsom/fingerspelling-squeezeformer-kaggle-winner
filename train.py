@@ -151,7 +151,8 @@ best_val_metric = float('-inf')
 val_scores = []
 
 epochStart = 0
-checkpoint_path = f"{cfg.output_dir}/fold{cfg.fold}/{CHECKPOINT_FILE}.pth"
+# checkpoint_path = f"{cfg.output_dir}/fold{cfg.fold}/{CHECKPOINT_FILE}.pth"
+checkpoint_path = f"content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed520847.pth"
 if os.path.exists(checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
     model.load_state_dict(checkpoint["model"])
