@@ -152,8 +152,9 @@ val_scores = []
 
 epochStart = 0
 # checkpoint_path = f"{cfg.output_dir}/fold{cfg.fold}/{CHECKPOINT_FILE}.pth"
-checkpoint_path = f"content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed520847.pth"
+checkpoint_path = f"/content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed520847.pth"
 if os.path.exists(checkpoint_path):
+    print("LOAD FOUND")
     checkpoint = torch.load(checkpoint_path)
     model.load_state_dict(checkpoint["model"])
     optimizer.load_state_dict(checkpoint["optimizer"])
@@ -165,6 +166,8 @@ if os.path.exists(checkpoint_path):
     loss_history = checkpoint.get("loss_history", loss_history)
     best_val_metric = checkpoint.get("best_val_metric", best_val_metric)
     val_scores = checkpoint.get("val_scores", val_scores)
+else:
+    print("LOAD FAILED")
 
 if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"): 
     os.makedirs(f"{cfg.output_dir}/fold{cfg.fold}/")
@@ -172,7 +175,7 @@ if not os.path.exists(f"{cfg.output_dir}/fold{cfg.fold}/"):
 optimizer.zero_grad()
 
 # save_path = f"{cfg.output_dir}/fold{cfg.fold}/checkpoint_last_seed{cfg.seed}.pth"
-save_path = f"content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed{cfg.seed}.pth"
+save_path = f"/content/drive/MyDrive/squeezeFormerTest/checkpoint/checkpoint_last_seed{cfg.seed}.pth"
 for epoch in range(epochStart, cfg.epochs):
     
     cfg.curr_epoch = epoch
