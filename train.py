@@ -166,6 +166,10 @@ if os.path.exists(checkpoint_path):
     loss_history = checkpoint.get("loss_history", loss_history)
     best_val_metric = checkpoint.get("best_val_metric", best_val_metric)
     val_scores = checkpoint.get("val_scores", val_scores)
+    if "rng_state" in checkpoint:
+        torch.set_rng_state(checkpoint["rng_state"])
+        torch.cuda.set_rng_state_all(checkpoint["cuda_rng_state"])
+        np.random.set_state(checkpoint["numpy_rng_state"])
 else:
     print("LOAD FAILED")
 
@@ -300,6 +304,9 @@ for epoch in range(epochStart, cfg.epochs):
             "loss_history": loss_history,
             "best_val_metric": best_val_metric,
             "val_scores": val_scores,
+            "rng_state": torch.get_rng_state(),
+            "cuda_rng_state": torch.cuda.get_rng_state_all(),
+            "numpy_rng_state": np.random.get_state(),
         }, save_path)
         
 
@@ -314,5 +321,8 @@ torch.save({
     "loss_history": loss_history,
     "best_val_metric": best_val_metric,
     "val_scores": val_scores,
+    "rng_state": torch.get_rng_state(),
+    "cuda_rng_state": torch.cuda.get_rng_state_all(),
+    "numpy_rng_state": np.random.get_state(),
 }, save_path)
 print(f"Checkpoint save : " +  save_path)
