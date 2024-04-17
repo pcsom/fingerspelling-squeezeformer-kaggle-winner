@@ -662,6 +662,7 @@ class SqueezeformerBlock(nn.Module):
 
         x = x * self.scale_self_attn1.to(x.dtype) + self.bias_self_attn1.to(x.dtype)
         self_attn = self.self_attn1(x, attn_weights)
+        print(type(self_attn))
         x = x + self_attn if self_attn_dropout_mask is None else self_attn * self_attn_dropout_mask
         
 
