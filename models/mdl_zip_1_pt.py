@@ -495,9 +495,9 @@ class SqueezeformerBlock(nn.Module):
                                        bias = True)
         '''       
 
-        self.bypass = BypassModule(
-            encoder_dim, skip_rate=bypass_skip_rate, straight_through_rate=0
-        )
+        # self.bypass = BypassModule(
+        #     encoder_dim, skip_rate=bypass_skip_rate, straight_through_rate=0
+        # )
         self.bypass_mid = BypassModule(encoder_dim, straight_through_rate=0)
         self.attention_skip_rate = copy.deepcopy(attention_skip_rate)
         self.conv_skip_rate = copy.deepcopy(conv_skip_rate)
@@ -511,9 +511,9 @@ class SqueezeformerBlock(nn.Module):
                         max_position_embeddings = 384)
         )
 
-        self.self_attn1 = LlamaAttention(LlamaConfig(hidden_size = encoder_dim, 
-                                       num_attention_heads = num_attention_heads, 
-                                       max_position_embeddings = 384))
+        # self.self_attn1 = LlamaAttention(LlamaConfig(hidden_size = encoder_dim, 
+        #                                num_attention_heads = num_attention_heads, 
+        #                                max_position_embeddings = 384))
 
         self.self_attn2 = LlamaAttention(LlamaConfig(hidden_size = encoder_dim, 
                                        num_attention_heads = num_attention_heads, 
@@ -558,9 +558,9 @@ class SqueezeformerBlock(nn.Module):
         self.scale_feed_forward2, self.bias_feed_forward2 = make_scale(encoder_dim)
         self.scale_feed_forward3, self.bias_feed_forward3 = make_scale(encoder_dim)
         self.scale_nonlin_attention, self.bias_nonlin_attention = make_scale(encoder_dim)
-        self.scale_conv_module1, self.bias_conv_module1 = make_scale(encoder_dim)
+        # self.scale_conv_module1, self.bias_conv_module1 = make_scale(encoder_dim)
         self.scale_conv_module2, self.bias_conv_module2 = make_scale(encoder_dim)
-        self.scale_bypass, self.bias_bypass = make_scale(encoder_dim)
+        # self.scale_bypass, self.bias_bypass = make_scale(encoder_dim)
         self.scale_bypass_mid, self.bias_bypass_mid = make_scale(encoder_dim)
 
         
