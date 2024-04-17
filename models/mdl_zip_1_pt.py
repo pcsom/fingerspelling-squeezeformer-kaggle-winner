@@ -498,11 +498,11 @@ class SqueezeformerBlock(nn.Module):
         # self.bypass = BypassModule(
         #     encoder_dim, skip_rate=bypass_skip_rate, straight_through_rate=0
         # )
-        # self.bypass_mid = BypassModule(encoder_dim, straight_through_rate=0)
+        self.bypass_mid = BypassModule(encoder_dim, straight_through_rate=0)
         self.attention_skip_rate = copy.deepcopy(attention_skip_rate)
         self.conv_skip_rate = copy.deepcopy(conv_skip_rate)
         self.ff2_skip_rate = copy.deepcopy(ff2_skip_rate)
-        # self.ff3_skip_rate = copy.deepcopy(ff3_skip_rate)
+        self.ff3_skip_rate = copy.deepcopy(ff3_skip_rate)
         self.const_attention_rate = copy.deepcopy(const_attention_rate)
         
         self.self_attn_weights = RotaryEmbeddingWeights(
@@ -515,18 +515,18 @@ class SqueezeformerBlock(nn.Module):
                                        num_attention_heads = num_attention_heads, 
                                        max_position_embeddings = 384))
 
-        # self.self_attn2 = LlamaAttention(LlamaConfig(hidden_size = encoder_dim, 
-        #                                num_attention_heads = num_attention_heads, 
-        #                                max_position_embeddings = 384))
+        self.self_attn2 = LlamaAttention(LlamaConfig(hidden_size = encoder_dim, 
+                                       num_attention_heads = num_attention_heads, 
+                                       max_position_embeddings = 384))
         
         self.feed_forward1 = FeedForwardModule(
             encoder_dim, 3, bypass_dropout_p
         )
 
         self.feed_forward2 = FeedForwardModule(encoder_dim, 4, bypass_dropout_p)
-        # self.feed_forward3 = FeedForwardModule(
-        #     encoder_dim, 5, bypass_dropout_p
-        # )
+        self.feed_forward3 = FeedForwardModule(
+            encoder_dim, 5, bypass_dropout_p
+        )
 
         self.nonlin_attention = NonlinAttention(
             encoder_dim, hidden_channels=3 * encoder_dim // 4
@@ -535,9 +535,9 @@ class SqueezeformerBlock(nn.Module):
         self.conv_module1 = ConvModule(
             encoder_dim, conv_kernel_size, conv_expansion_factor, conv_dropout_p
         )
-        # self.conv_module2 = ConvModule(
-        #     encoder_dim, conv_kernel_size, conv_expansion_factor, conv_dropout_p
-        # )
+        self.conv_module2 = ConvModule(
+            encoder_dim, conv_kernel_size, conv_expansion_factor, conv_dropout_p
+        )
 
         self.norm = BiasNorm(encoder_dim)
 
@@ -553,15 +553,15 @@ class SqueezeformerBlock(nn.Module):
 
         self.scale_self_attn_weights, self.bias_self_attn_weights = make_scale(encoder_dim)
         self.scale_self_attn1, self.bias_self_attn1 = make_scale(encoder_dim)
-        # self.scale_self_attn2, self.bias_self_attn2 = make_scale(encoder_dim)
+        self.scale_self_attn2, self.bias_self_attn2 = make_scale(encoder_dim)
         self.scale_feed_forward1, self.bias_feed_forward1 = make_scale(encoder_dim)
         self.scale_feed_forward2, self.bias_feed_forward2 = make_scale(encoder_dim)
-        # self.scale_feed_forward3, self.bias_feed_forward3 = make_scale(encoder_dim)
+        self.scale_feed_forward3, self.bias_feed_forward3 = make_scale(encoder_dim)
         self.scale_nonlin_attention, self.bias_nonlin_attention = make_scale(encoder_dim)
         self.scale_conv_module1, self.bias_conv_module1 = make_scale(encoder_dim)
-        # self.scale_conv_module2, self.bias_conv_module2 = make_scale(encoder_dim)
+        self.scale_conv_module2, self.bias_conv_module2 = make_scale(encoder_dim)
         # self.scale_bypass, self.bias_bypass = make_scale(encoder_dim)
-        # self.scale_bypass_mid, self.bias_bypass_mid = make_scale(encoder_dim)
+        self.scale_bypass_mid, self.bias_bypass_mid = make_scale(encoder_dim)
 
         
         '''
@@ -680,32 +680,32 @@ class SqueezeformerBlock(nn.Module):
             self.feed_forward2(x), ff2_skip_rate
         )
 
-        # x = x * self.scale_bypass_mid.to(x.dtype) + self.bias_bypass_mid.to(x.dtype)
-        # x = self.bypass_mid(residual, x)
-        # x = x * self.scale_self_attn2.to(x.dtype) + self.bias_self_attn2.to(x.dtype)
-        # self_attn = self.self_attn2(x, attn_weights)[0]
-        # x = x + (self_attn if self_attn_dropout_mask is None else self_attn * self_attn_dropout_mask)
+        x = x * self.scale_bypass_mid.to(x.dtype) + self.bias_bypass_mid.to(x.dtype)
+        x = self.bypass_mid(residual, x)
+        x = x * self.scale_self_attn2.to(x.dtype) + self.bias_self_attn2.to(x.dtype)
+        self_attn = self.self_attn2(x, attn_weights)[0]
+        x = x + (self_attn if self_attn_dropout_mask is None else self_attn * self_attn_dropout_mask)
 
-        # if torch.jit.is_scripting() or torch.jit.is_tracing():
-        #     conv_skip_rate = 0.0
-        # else:
-        #     conv_skip_rate = float(self.conv_skip_rate) if self.training else 0.0
-        # x = x * self.scale_conv_module2.to(x.dtype) + self.bias_conv_module2.to(x.dtype)
-        # x = x + self.sequence_dropout(
-        #     self.conv_module2(
-        #         x, mask_pad = mask.bool().unsqueeze(1)
-        #     ),
-        #     conv_skip_rate,
-        # )
+        if torch.jit.is_scripting() or torch.jit.is_tracing():
+            conv_skip_rate = 0.0
+        else:
+            conv_skip_rate = float(self.conv_skip_rate) if self.training else 0.0
+        x = x * self.scale_conv_module2.to(x.dtype) + self.bias_conv_module2.to(x.dtype)
+        x = x + self.sequence_dropout(
+            self.conv_module2(
+                x, mask_pad = mask.bool().unsqueeze(1)
+            ),
+            conv_skip_rate,
+        )
 
-        # if torch.jit.is_scripting() or torch.jit.is_tracing():
-        #     ff3_skip_rate = 0.0
-        # else:
-        #     ff3_skip_rate = float(self.ff3_skip_rate) if self.training else 0.0
-        # x = x * self.scale_feed_forward3.to(x.dtype) + self.bias_feed_forward3.to(x.dtype)
-        # x = x + self.sequence_dropout(
-        #     self.feed_forward3(x), ff3_skip_rate
-        # )
+        if torch.jit.is_scripting() or torch.jit.is_tracing():
+            ff3_skip_rate = 0.0
+        else:
+            ff3_skip_rate = float(self.ff3_skip_rate) if self.training else 0.0
+        x = x * self.scale_feed_forward3.to(x.dtype) + self.bias_feed_forward3.to(x.dtype)
+        x = x + self.sequence_dropout(
+            self.feed_forward3(x), ff3_skip_rate
+        )
 
         x_skip = x.view(-1, x.shape[-1])
         x = x_skip[mask_flat].unsqueeze(0)
