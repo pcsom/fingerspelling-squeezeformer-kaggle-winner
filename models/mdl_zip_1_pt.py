@@ -674,7 +674,7 @@ class SqueezeformerBlock(nn.Module):
         x = x * self.scale_conv_module1.to(x.dtype) + self.bias_conv_module1.to(x.dtype)
         x = x + self.sequence_dropout(
             self.conv_module1(
-                x, self.conv(x, mask_pad = mask.bool().unsqueeze(1))
+                x, mask_pad = mask.bool().unsqueeze(1)
             ),
             conv_skip_rate
         )
@@ -702,7 +702,7 @@ class SqueezeformerBlock(nn.Module):
         x = x * self.scale_conv_module2.to(x.dtype) + self.bias_conv_module2.to(x.dtype)
         x = x + self.sequence_dropout(
             self.conv_module2(
-                x, self.conv(x, mask_pad = mask.bool().unsqueeze(1))
+                x, mask_pad = mask.bool().unsqueeze(1)
             ),
             conv_skip_rate,
         )
