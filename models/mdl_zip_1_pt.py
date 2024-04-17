@@ -658,17 +658,12 @@ class SqueezeformerBlock(nn.Module):
 
         x = x * self.scale_nonlin_attention.to(x.dtype) + self.bias_nonlin_attention.to(x.dtype)
         na = self.nonlin_attention(x, selected_attn_weights.permute(1, 0, 2, 3))
-        x = x + (
-            na if self_attn_dropout_mask is None else na * self_attn_dropout_mask
-        )
+        x = x + na if self_attn_dropout_mask is None else na * self_attn_dropout_mask
 
         x = x * self.scale_self_attn1.to(x.dtype) + self.bias_self_attn1.to(x.dtype)
         self_attn = self.self_attn1(x, attn_weights)
-        x = x + (
-            self_attn
-            if self_attn_dropout_mask is None
-            else self_attn * self_attn_dropout_mask
-        )
+        x = x + self_attn if self_attn_dropout_mask is None else self_attn * self_attn_dropout_mask
+        
 
         if torch.jit.is_scripting() or torch.jit.is_tracing():
             conv_skip_rate = 0.0
@@ -697,11 +692,7 @@ class SqueezeformerBlock(nn.Module):
         x = self.bypass_mid(residual, x)
         x = x * self.scale_self_attn2.to(x.dtype) + self.bias_self_attn2.to(x.dtype)
         self_attn = self.self_attn2(x, attn_weights)
-        x = x + (
-            self_attn
-            if self_attn_dropout_mask is None
-            else self_attn * self_attn_dropout_mask
-        )
+        x = x + self_attn if self_attn_dropout_mask is None else self_attn * self_attn_dropout_mask
 
         if torch.jit.is_scripting() or torch.jit.is_tracing():
             conv_skip_rate = 0.0
