@@ -1061,7 +1061,7 @@ class NonlinAttention(nn.Module):
                 Returns:
                    a Tensor with the same shape as x
         """
-        x = x.permute(1, 0)
+        x = x.permute(1, 0, 2)
         attn_weights = attn_weights.permute(1, 0, 2, 3)
         """
             NOW:
@@ -1099,7 +1099,7 @@ class NonlinAttention(nn.Module):
         x = self.out_proj(x)
         x = self.whiten2(x)
 
-        x = x.permute(1, 0, 2, 3)
+        x = x.permute(1, 0, 2)
         return x
     
 
