@@ -541,15 +541,6 @@ class SqueezeformerBlock(nn.Module):
 
         self.norm = BiasNorm(encoder_dim)
 
-        self.balancer1 = Balancer(
-            encoder_dim,
-            channel_dim=-1,
-            min_positive=0.45,
-            max_positive=0.55,
-            min_abs=0.2,
-            max_abs=4.0,
-        )
-
         # balancer for output of NonlinAttentionModule
 
         self.whiten = Whiten(
@@ -713,7 +704,7 @@ class SqueezeformerBlock(nn.Module):
             ff3_skip_rate = float(self.ff3_skip_rate) if self.training else 0.0
         x = x * self.scale_feed_forward3.to(x.dtype) + self.bias_feed_forward3.to(x.dtype)
         x = x + self.sequence_dropout(
-            self.balancer_ff3(self.feed_forward3(x)), ff3_skip_rate
+            self.feed_forward3(x), ff3_skip_rate
         )
 
         x_skip = x.view(-1, x.shape[-1])
