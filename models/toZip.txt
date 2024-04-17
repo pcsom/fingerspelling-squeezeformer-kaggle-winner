@@ -1,0 +1,26 @@
+FeedForwardModule:
+    simply replaced Swish with SwooshL
+    currently ignoring the complex processes zipformer has, and just
+        embedding its activation into squeeze
+    
+
+ConvModule:
+    swish changed to SwooshR
+
+
+Added biasnorm definition
+
+nonLinAttention:
+    removed identity funcs
+    added whitening schedule
+    modify out_proj to have no scaling or bias (like llamaAttention's out)
+    permute x and attn at beginning, unpermute at end
+
+
+RotaryEmbeddingWeights:
+    takes k_proj, q_proj and related code
+    takes all code for attn_weights
+    leaves value_states for llama attention
+
+
+copied in BypassModule
