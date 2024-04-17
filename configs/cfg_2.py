@@ -63,7 +63,7 @@ chars = np.array([num_to_char[i] for i in range(len(num_to_char))])
 cfg.tokenizer = [char_to_num,num_to_char,chars]
 
 #model
-cfg.model = "mdl_2_pt"
+cfg.model = "mdl_zip_1_pt"
 cfg.model_tf = "mdl_2_tf"
 cfg.aux_loss_weight = 0.02
 cfg.bwd_loss_weight = 0.4
