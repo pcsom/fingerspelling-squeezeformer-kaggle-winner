@@ -1,56 +1,21 @@
 ## Note - I am not the author of or affiliated with the authors of the 1st place solution. Their original work and github can be found here: https://github.com/ChristofHenkel/kaggle-asl-fingerspelling-1st-place-solution
 
-This repository contains the codebase to reproduce the winning solution to the Google - ASL Fingerspelling Recognition competition on kaggle. 
+This repository contains an improvement upon the winning solution to the Google - ASL Fingerspelling Recognition competition on kaggle. The original implementation is an improved SqueezeFormer Automatic Speech Recognition architecture. I introduce elements of the new Zipformer model to increase validation test loss and accuracy by approximately 2%. Full training to measure performance of a completely prepared model is TBD.
 
-Competiton website: [link](https://www.kaggle.com/competitions/asl-fingerspelling).  
-1st place solution summary: [link](https://www.kaggle.com/competitions/asl-fingerspelling/discussion/434485). 
+Competiton website: [link](https://www.kaggle.com/competitions/asl-fingerspelling).\
+1st place solution summary: [link](https://www.kaggle.com/competitions/asl-fingerspelling/discussion/434485). \
+Zipformer implementation reference: [link](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/zipformer).\
+Zipformer paper: [link](https://arxiv.org/html/2310.11230v4).\
+Squeezeformer TensorFlow implementation reference: [link](https://github.com/kssteven418/Squeezeformer).\
+Squeezeformer PyTorch implementation reference: [link](https://github.com/upskyy/Squeezeformer/).\
+Squeezeformer paper: [link](https://arxiv.org/pdf/2206.00888.pdf).\
+TFSpeech2TextDecoder uilities from [link](https://github.com/huggingface/transformers/) to support caching and used components related to LLama Attention.\
 
-Our solution is based on a single encoder-decoder architecture. The encoder is a significantly improved version of Squeezeformer, where the feature extraction was adapted to handle mediapipe landmarks instead of speech signals. The decoder is a simple 2-layer transformer. We additionally predicted a confidence score to identify corrupted examples which can be useful for post-processing. We also introduced efficient and creative augmentations to regularize the model, where the most important ones were CutMix, FingerDropout and TimeStretch, DecoderInput Masking. We used pytorch for developing and training our models and then manually translated model architecture and ported weights to tensorflow from which we exported to tf-lite.
-
-![](architecture_overview.png)
-
-
-
-
-
-
-
-## Preparations
-
-We used the `nvcr.io/nvidia/pytorch:23.07-py3` container from the [ngc catalog](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch) to have a consistent environment between team members. You can run it via
-
-`docker run --gpus all -it --rm nvcr.io/nvidia/pytorch:23.07-py3`
-
-Within the container clone this repository and install necessary packages with 
-```
-git clone https://github.com/pcsom/fingerspelling-squeezeformer-kaggle-winner
-cd fingerspelling-squeezeformer-kaggle-winner
-pip install -r requirements.txt
-```
-
-We have preprocessed the dataset into numpy format files for fast loading. In order to download the data you will need a kaggle [user](https://www.kaggle.com/) and to set up the [kaggle-api](https://github.com/Kaggle/kaggle-api).
-You can check the preprocessing of the data [here](https://www.kaggle.com/code/darraghdog/asl-fingerspelling-preprocessing-train) and [here](https://www.kaggle.com/code/darraghdog/asl-fingerspelling-preprocessing-supplemental). 
-
-```
-# Download the train and supplemental data
-cd datamount/
-
-kaggle datasets download -d darraghdog/asl-fingerspelling-preprocessing-train-dataset
-unzip -n asl-fingerspelling-preprocessing-train-dataset.zip
-rm asl-fingerspelling-preprocessing-train-dataset.zip
-kaggle datasets download -d darraghdog/asl-fingerspelling-preprocessed-supp-dataset
-unzip -n asl-fingerspelling-preprocessed-supp-dataset.zip 
-mv supplemental_landmarks/* train_landmarks_npy/
-rm asl-fingerspelling-preprocessed-supp-dataset.zip
-rm -rf supplemental_landmarks/
-cd ..
-```
-
-By default training is logged via neptune.ai to a quickstart project. If you want to use your own neptune project set `cfg.neptune_project` in `configs/cfg_1.py` and `configs/cfg_2.py`. A blog post discussing how we used neptune for this competition can be found [here](https://www.medium.com/@darragh.hanley_94135/mastering-mlops-with-neptune-ai-84e635d36bf2) . 
+The solution is an encoder-decoder architecture.
 
 
 
-## Reproducing 1st place solution
+## \[Quoted from the original authors\] Training to reproduce the 1st place solution
 
 In order to reproduce the 1st place solution, two rounds of training are necesseary. In the first round we train a smaller model in order to generate out-of-fold (OOF) predictions which are used as auxiliary target for round two. Finally, model architecture of round two is translated to tensorflow and weights are transfered before we export to a tf-lite model. Note that, for users convinience, we provide the output of step 1 as `datamount/train_folded_oof_supp.csv` so only step 2& 3 would need to be performed to get the final model weights.
 
@@ -98,21 +63,6 @@ datamount/weights/cfg_2/fold-1/inference_args.json
 ```
 and can be added to a kaggle kernel and submitted.
 
-
-## References
-
-We adapted squeezeformer components from these two great repositories: 
-
-- SqueezeFormer (tensorflow) https://github.com/kssteven418/Squeezeformer
-- SqueezeFormer (pytorch) https://github.com/upskyy/Squeezeformer/
-
-Check out the SqueezeFormer [paper](https://arxiv.org/pdf/2206.00888.pdf) for more details on the architecture.
-
-We copied and adapted the TFSpeech2TextDecoder from https://github.com/huggingface/transformers/ to support caching and used components related to LLama Attention.
-
-## Paper 
-
-TBD
       
       
       
