@@ -1,6 +1,6 @@
 ## Note - I am not the author of or affiliated with the authors of the 1st place solution. Their original work and github can be found here: https://github.com/ChristofHenkel/kaggle-asl-fingerspelling-1st-place-solution
 
-This repository contains an improvement upon the winning solution to the Google - ASL Fingerspelling Recognition competition on kaggle. The original implementation is an improved SqueezeFormer Automatic Speech Recognition architecture. I introduce elements of the new Zipformer model to increase validation loss and accuracy (during training) by approximately 2%. Full training and performance measurement of a completely prepared model is TBD.
+This repository contains an improvement upon the winning solution to the Google - ASL Fingerspelling Recognition competition on kaggle. The original implementation is an improved SqueezeFormer Automatic Speech Recognition architecture. I introduce elements of the new Zipformer model to improve validation loss and accuracy (during training) by approximately 2%. Full training and performance measurement of a completely prepared model is TBD.
 
 Competiton website: [link](https://www.kaggle.com/competitions/asl-fingerspelling).\
 1st place solution summary: [link](https://www.kaggle.com/competitions/asl-fingerspelling/discussion/434485). \
